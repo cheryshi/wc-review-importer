@@ -50,7 +50,6 @@ final class Activator
      */
     public static function deactivate(): void
     {
-        delete_transient('wcri_runtime_requirements_errors');
     }
 
     /**
