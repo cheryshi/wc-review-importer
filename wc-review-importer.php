@@ -43,7 +43,7 @@ function wcri_register_autoloader(): void
         static function (string $class_name): void {
             $prefix = 'WCRI\\';
 
-            if (0 !== strpos($class_name, $prefix)) {
+            if (! str_starts_with($class_name, $prefix)) {
                 return;
             }
 
@@ -51,9 +51,11 @@ function wcri_register_autoloader(): void
             $relative_path  = str_replace('\\', DIRECTORY_SEPARATOR, $relative_class);
             $file_path      = WCRI_PLUGIN_DIR . 'includes' . DIRECTORY_SEPARATOR . $relative_path . '.php';
 
-            if (is_readable($file_path)) {
-                require_once $file_path;
+            if (! is_readable($file_path)) {
+                return;
             }
+
+            require_once $file_path;
         }
     );
 }
