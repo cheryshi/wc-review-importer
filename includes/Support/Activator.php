@@ -28,7 +28,8 @@ final class Activator
         $requirements = new Requirements();
 
         if (! $requirements->areMet()) {
-            deactivate_plugins(WCRI_PLUGIN_BASENAME);
+            self::deactivatePlugin();
+
             wp_die(
                 esc_html(implode(' ', $requirements->getErrors())),
                 esc_html__('Plugin Activation Error', 'wc-review-importer'),
@@ -50,6 +51,21 @@ final class Activator
      */
     public static function deactivate(): void
     {
+        // Reserved for future non-destructive shutdown tasks.
+    }
+
+    /**
+     * Deactivates the plugin when activation requirements fail.
+     *
+     * @return void
+     */
+    private static function deactivatePlugin(): void
+    {
+        if (! function_exists('deactivate_plugins')) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
+        }
+
+        deactivate_plugins(WCRI_PLUGIN_BASENAME);
     }
 
     /**
