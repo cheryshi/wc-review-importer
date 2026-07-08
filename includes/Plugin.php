@@ -25,7 +25,7 @@ final class Plugin
      */
     public function init(): void
     {
-        $this->loadTextDomain();
+        add_action('init', array($this, 'loadTextDomain'));
     }
 
     /**
@@ -33,7 +33,7 @@ final class Plugin
      *
      * @return void
      */
-    private function loadTextDomain(): void
+    public function loadTextDomain(): void
     {
         load_plugin_textdomain(
             WCRI_TEXT_DOMAIN,
