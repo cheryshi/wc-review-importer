@@ -1,179 +1,359 @@
 # Development Milestones
 
-This TODO tracks implementation order for WooCommerce Review Importer v1.0. Each milestone should be completed and reviewed before moving to the next milestone. Do not implement unrelated future roadmap features during v1.0 work.
+This project is developed one milestone at a time. Do not start a later milestone until the current milestone has been reviewed and explicitly approved.
 
-## Milestone 0: Repository Preparation
+## Milestone Rules
 
-- [ ] Confirm final plugin slug: `wc-review-importer`.
-- [ ] Confirm PHP namespace root: `WCRI`.
-- [ ] Confirm WordPress, WooCommerce, and PHP version requirements.
-- [ ] Add `.github/copilot-instructions.md` if project tooling requires that exact path.
-- [ ] Add sample CSV template under `sample/`.
-- [ ] Add test fixture CSV files for valid, invalid, duplicate, UTF-8, multiline, and large-import cases.
+- Read the required documentation before every milestone.
+- Explain planned file changes before implementation.
+- Explain architecture decisions before implementation.
+- Keep each milestone in a focused commit.
+- Do not modify unrelated files.
+- Do not continue automatically to the next milestone.
+- Update documentation when milestone scope or architecture changes.
+
+## Milestone 0: Documentation-Driven Project Setup
+
+Status: In progress
+
+Goal: Establish repository guidance, project documentation, and AI engineering workflow.
+
+Tasks:
+
+- [x] Create `README.md`.
+- [x] Create `docs/PRD.md`.
+- [x] Create `docs/ARCHITECTURE.md`.
+- [x] Create `docs/CODING_GUIDELINES.md`.
+- [x] Create `docs/TODO.md`.
+- [x] Create `docs/CHANGELOG.md`.
+- [x] Create `.github/copilot-instructions.md`.
+- [x] Create `docs/AI_PLAYBOOK.md`.
+- [ ] Review all documentation for consistency.
+- [ ] Approve transition to Milestone 1.
+
+Acceptance criteria:
+
+- Documentation defines roles, workflow, architecture, milestones, safety rules, and approval gates.
+- AI contributors can understand how to work in the repository without additional context.
+- No plugin functionality is introduced by this milestone.
 
 ## Milestone 1: Plugin Bootstrap
 
-- [ ] Create the main plugin file with WordPress plugin headers.
-- [ ] Define plugin constants for version, path, URL, basename, and minimum requirements.
-- [ ] Add activation and deactivation hooks.
-- [ ] Add runtime checks for PHP, WordPress, and WooCommerce compatibility.
-- [ ] Add an autoloader or Composer PSR-4 setup for the `WCRI` namespace.
-- [ ] Create the central `Plugin` class responsible for wiring services.
-- [ ] Load text domain for translations.
-- [ ] Ensure the plugin activates without PHP warnings or deprecated notices.
+Status: Implemented, pending final approval
+
+Goal: Create the minimum safe WordPress plugin bootstrap.
+
+Tasks:
+
+- [x] Create main plugin file with WordPress plugin headers.
+- [x] Define plugin constants for version, paths, URLs, basename, text domain, options, and minimum requirements.
+- [x] Add a `WCRI` autoloader mapped to `includes/`.
+- [x] Add activation and deactivation hooks.
+- [x] Add PHP, WordPress, and WooCommerce requirement checks.
+- [x] Add conservative default option seeding.
+- [x] Add central `WCRI\Plugin` composition root.
+- [x] Load text domain on `init`.
+- [ ] Run PHP syntax checks in an environment with PHP available.
+- [ ] Validate activation on a WordPress/WooCommerce test site.
+
+Acceptance criteria:
+
+- Plugin activates only when requirements are met.
+- Plugin bootstrap remains thin.
+- `WCRI\Plugin` does not become a God Object.
+- No admin, importer, CSV, AJAX, or logging features are implemented yet.
 
 ## Milestone 2: Core Architecture Skeleton
 
-- [ ] Create namespaced directories for Admin, CSV, Importer, Product, Review, Logger, Settings, Security, and Support classes.
-- [ ] Define service classes with single responsibilities.
-- [ ] Add dependency injection through constructors where practical.
-- [ ] Add interfaces for replaceable strategies, especially product matching and logging.
-- [ ] Keep importer logic independent from the admin UI.
-- [ ] Document all public methods with PHPDoc.
+Status: Not started
 
-## Milestone 3: Settings
+Goal: Add class skeletons and service boundaries without business-heavy implementation.
 
-- [ ] Register plugin settings using WordPress Settings API.
-- [ ] Add default review status setting.
-- [ ] Add default verified owner setting.
-- [ ] Add default batch size setting.
-- [ ] Add duplicate detection setting.
-- [ ] Add logging enabled setting.
-- [ ] Add maximum execution time or per-request processing limit setting.
-- [ ] Sanitize all settings before saving.
-- [ ] Escape all settings output in admin screens.
+Tasks:
 
-## Milestone 4: Admin Interface
+- [ ] Create namespaces and directories for Admin, Ajax, CSV, Importer, Product, Review, Logger, Settings, Security, and Support.
+- [ ] Add interfaces for replaceable strategies where needed.
+- [ ] Add service registration points in `WCRI\Plugin`.
+- [ ] Keep service construction explicit and easy to review.
+- [ ] Add PHPDoc for all public methods.
+- [ ] Verify bootstrap does not need unrelated changes.
 
-- [ ] Add WooCommerce submenu: WooCommerce -> Import Reviews.
-- [ ] Render upload panel, import options, progress area, statistics area, and logs area.
-- [ ] Add CSV template download action.
-- [ ] Add nonce and capability checks for every admin action.
-- [ ] Enqueue admin CSS and JavaScript only on the plugin page.
-- [ ] Keep admin UI code separate from importer services.
+Acceptance criteria:
 
-## Milestone 5: CSV Upload And Validation
+- Responsibilities are clear before feature logic is added.
+- Future services can be wired without rewriting the bootstrap.
+- No CSV import behavior is implemented yet unless explicitly approved.
 
-- [ ] Accept UTF-8 CSV files only.
-- [ ] Validate file extension and MIME type.
-- [ ] Reject oversized or unreadable uploads with clear admin errors.
-- [ ] Store uploaded files in a controlled WordPress uploads subdirectory.
-- [ ] Protect stored CSV files from direct unintended access where possible.
-- [ ] Detect missing required headers.
-- [ ] Ignore unknown columns.
-- [ ] Apply CSV injection protection for logged or exported cell-like values.
+## Milestone 3: Settings Foundation
 
-## Milestone 6: CSV Parser
+Status: Not started
 
-- [ ] Implement streaming CSV reading without loading the full file into memory.
-- [ ] Support header mapping for `sku,name,email,rating,title,review,date`.
-- [ ] Normalize row data before validation.
-- [ ] Preserve row numbers for logs and error reporting.
-- [ ] Support multiline reviews.
-- [ ] Support special characters, UTF-8, and emoji.
-- [ ] Skip malformed rows without stopping the import.
-- [ ] Provide parser result objects or arrays with consistent keys.
+Goal: Add settings storage and validation.
+
+Tasks:
+
+- [ ] Register plugin settings with WordPress Settings API.
+- [ ] Add defaults for review status, verified owner, batch size, duplicate detection, logging, and execution limits.
+- [ ] Sanitize all settings.
+- [ ] Escape all settings output.
+- [ ] Add settings repository methods for future services.
+
+Acceptance criteria:
+
+- Settings are safe, typed consistently, and reusable by importer services.
+- No import UI or import execution is required in this milestone.
+
+## Milestone 4: Admin Interface Shell
+
+Status: Not started
+
+Goal: Add the WooCommerce admin page without running imports.
+
+Tasks:
+
+- [ ] Add WooCommerce -> Import Reviews submenu.
+- [ ] Render admin page structure.
+- [ ] Add placeholders for upload, options, progress, statistics, and logs.
+- [ ] Enqueue admin assets only on plugin pages.
+- [ ] Add nonce fields and capability checks.
+
+Acceptance criteria:
+
+- Admin page loads safely.
+- UI does not perform import work yet.
+- Admin classes do not contain importer business logic.
+
+## Milestone 5: CSV Template And Upload Validation
+
+Status: Not started
+
+Goal: Add safe CSV template download and upload validation.
+
+Tasks:
+
+- [ ] Add sample CSV template.
+- [ ] Add template download action.
+- [ ] Validate CSV extension and MIME type.
+- [ ] Validate readability and required headers.
+- [ ] Store uploads in a controlled plugin-owned location.
+- [ ] Reject invalid uploads with clear errors.
+
+Acceptance criteria:
+
+- Uploads are validated before any import job exists.
+- Unknown columns are tolerated.
+- Missing `sku` header is rejected.
+
+## Milestone 6: Streaming CSV Parser
+
+Status: Not started
+
+Goal: Parse CSV files safely without loading entire files into memory.
+
+Tasks:
+
+- [ ] Implement header normalization.
+- [ ] Implement row streaming.
+- [ ] Preserve row numbers.
+- [ ] Support UTF-8, emoji, multiline reviews, and special characters.
+- [ ] Return structured row objects or arrays.
+- [ ] Convert malformed rows into row-level errors.
+
+Acceptance criteria:
+
+- Parser does not create reviews or match products.
+- Parser can support large files.
 
 ## Milestone 7: Import Job State
 
-- [ ] Create import session/job state storage using WordPress options, transients, or upload metadata.
-- [ ] Track file path, current offset or row index, totals, processed count, success count, skipped count, warning count, and error count.
-- [ ] Track status: pending, running, paused, cancelled, completed, failed.
-- [ ] Track timestamps for start, update, completion, and cancellation.
-- [ ] Support resume without reprocessing completed rows.
-- [ ] Clean up stale import state and uploaded files safely.
+Status: Not started
+
+Goal: Persist import session state for batch processing.
+
+Tasks:
+
+- [ ] Create job entity or value object.
+- [ ] Create job repository.
+- [ ] Track status, file path, current row, counters, timestamps, and affected products.
+- [ ] Support pending, running, paused, cancelled, completed, and failed states.
+- [ ] Add stale job cleanup design.
+
+Acceptance criteria:
+
+- Progress can be resumed from saved state.
+- Job state does not require custom database tables.
 
 ## Milestone 8: Product Matching
 
-- [ ] Define product matching interface.
-- [ ] Implement SKU matcher as the default strategy.
-- [ ] Add Product ID matcher only if required for v1.0 import options.
-- [ ] Return structured match results for found, not found, invalid input, and ambiguous matches.
-- [ ] Log SKU not found and invalid product references without stopping the batch.
-- [ ] Keep design open for GTIN, UPC, EAN, and ASIN strategies.
+Status: Not started
 
-## Milestone 9: Review Importer
+Goal: Resolve imported rows to WooCommerce products.
 
-- [ ] Validate rating, email, author name, review content, and date per row.
-- [ ] Apply defaults for missing optional fields.
-- [ ] Create reviews through WordPress comment APIs.
-- [ ] Store WooCommerce rating comment meta.
-- [ ] Store verified owner metadata according to settings.
-- [ ] Set approval status according to settings.
-- [ ] Preserve review title only if supported by the selected storage approach.
-- [ ] Ensure one failed row does not terminate the import.
+Tasks:
+
+- [ ] Define product matcher interface.
+- [ ] Implement SKU matcher.
+- [ ] Return structured match results.
+- [ ] Log not-found and invalid product references as row-level outcomes.
+
+Acceptance criteria:
+
+- Product matching is replaceable.
+- Future Product ID, GTIN, UPC, EAN, and ASIN matchers can be added without changing importer orchestration.
+
+## Milestone 9: Review Validation And Creation
+
+Status: Not started
+
+Goal: Create WooCommerce-compatible reviews through WordPress APIs.
+
+Tasks:
+
+- [ ] Validate rating, email, name, content, and date.
+- [ ] Apply settings defaults.
+- [ ] Create comments through WordPress comment APIs.
+- [ ] Store WooCommerce rating metadata.
+- [ ] Store verified-owner metadata.
+- [ ] Respect approval status.
+
+Acceptance criteria:
+
+- No review is created through direct SQL.
+- One invalid row does not stop the import.
 
 ## Milestone 10: Duplicate Detection
 
-- [ ] Implement optional duplicate detection by product, email, and review content.
-- [ ] Check duplicates before creating the review.
-- [ ] Log skipped duplicates with row number and product reference.
-- [ ] Keep duplicate detection efficient for large imports.
-- [ ] Allow duplicate detection to be disabled through settings.
+Status: Not started
+
+Goal: Skip duplicate reviews when enabled.
+
+Tasks:
+
+- [ ] Detect duplicates by product, email, and review content.
+- [ ] Keep checks efficient for large imports.
+- [ ] Log skipped duplicates.
+- [ ] Allow duplicate detection to be disabled.
+
+Acceptance criteria:
+
+- Duplicate handling is optional and row-level.
 
 ## Milestone 11: Rating And Cache Updates
 
-- [ ] Recalculate WooCommerce average rating.
-- [ ] Recalculate WooCommerce review count.
-- [ ] Recalculate rating histogram/count metadata where applicable.
-- [ ] Clear product cache and transients after batch or job completion.
-- [ ] Verify frontend product rating display updates immediately after import.
-- [ ] Avoid direct SQL unless no WordPress or WooCommerce API exists.
+Status: Not started
 
-## Milestone 12: Logging
+Goal: Refresh WooCommerce rating data after review creation.
 
-- [ ] Implement log types: info, warning, error, skipped, summary.
-- [ ] Include row number, product reference, message, and context where useful.
+Tasks:
+
+- [ ] Recalculate average rating.
+- [ ] Recalculate review count.
+- [ ] Recalculate rating histogram metadata where applicable.
+- [ ] Clear WooCommerce caches and transients.
+- [ ] Avoid excessive repeated recalculation.
+
+Acceptance criteria:
+
+- Frontend rating data updates correctly after import.
+
+## Milestone 12: Logging System
+
+Status: Not started
+
+Goal: Record safe, useful, downloadable import logs.
+
+Tasks:
+
+- [ ] Implement info, warning, error, skipped, and summary log types.
 - [ ] Store logs per import session.
-- [ ] Display logs in the admin page.
-- [ ] Add log download action.
-- [ ] Sanitize log content and escape log output.
-- [ ] Protect logs from unauthorized access.
+- [ ] Include row number and product reference where useful.
+- [ ] Sanitize stored log data.
+- [ ] Escape displayed log data.
+- [ ] Add protected log download.
+
+Acceptance criteria:
+
+- Logs help administrators diagnose imports without exposing unsafe raw input.
 
 ## Milestone 13: AJAX Batch Import
 
-- [ ] Add AJAX action to start an import session.
-- [ ] Add AJAX action to process the next batch.
-- [ ] Add AJAX action to pause import.
-- [ ] Add AJAX action to resume import.
-- [ ] Add AJAX action to cancel import.
-- [ ] Default each batch to 100 rows, configurable through settings.
-- [ ] Return progress percentage, counters, current status, and recent messages.
-- [ ] Estimate remaining time when enough progress data exists.
-- [ ] Verify nonce and capabilities for every AJAX request.
-- [ ] Ensure batch processing avoids timeouts and memory exhaustion.
+Status: Not started
+
+Goal: Run imports through safe batch AJAX requests.
+
+Tasks:
+
+- [ ] Add start endpoint.
+- [ ] Add process next batch endpoint.
+- [ ] Add pause endpoint.
+- [ ] Add resume endpoint.
+- [ ] Add cancel endpoint.
+- [ ] Return compact progress responses.
+- [ ] Verify nonce and capability on every request.
+
+Acceptance criteria:
+
+- Imports do not run in one long request.
+- Default batch size is 100 rows.
 
 ## Milestone 14: Admin Progress And Statistics
 
-- [ ] Build progress bar behavior in admin JavaScript.
-- [ ] Display total, processed, imported, skipped, warnings, and errors.
-- [ ] Display current status and completion summary.
-- [ ] Support pause, resume, and cancel controls.
-- [ ] Handle AJAX failures gracefully with retry-safe messaging.
-- [ ] Prevent duplicate start requests while an import is running.
+Status: Not started
+
+Goal: Display real-time import progress and outcomes.
+
+Tasks:
+
+- [ ] Update progress percentage.
+- [ ] Display processed, imported, skipped, warning, and error counts.
+- [ ] Display recent logs.
+- [ ] Handle pause, resume, cancel, completion, and AJAX failure states.
+
+Acceptance criteria:
+
+- Admin UI reflects job state accurately.
 
 ## Milestone 15: Testing And Quality Gates
 
-- [ ] Test plugin activation and deactivation.
-- [ ] Test small valid CSV import.
-- [ ] Test invalid CSV and missing required headers.
-- [ ] Test missing SKU rows.
-- [ ] Test SKU not found rows.
-- [ ] Test invalid rating and invalid email rows.
-- [ ] Test duplicate review detection.
-- [ ] Test UTF-8, emoji, multiline, and very long reviews.
-- [ ] Test interrupted import and resume behavior.
-- [ ] Test cancel behavior and cleanup.
+Status: Not started
+
+Goal: Verify correctness, security, and scale.
+
+Tasks:
+
+- [ ] Test activation and deactivation.
+- [ ] Test valid small CSV import.
+- [ ] Test invalid CSV input.
+- [ ] Test missing SKU and SKU not found.
+- [ ] Test invalid rating and invalid email.
+- [ ] Test duplicate detection.
+- [ ] Test UTF-8, emoji, multiline, and long reviews.
+- [ ] Test interrupted import and resume.
+- [ ] Test cancel and cleanup.
 - [ ] Test large import target of 100,000 rows.
 - [ ] Run PHP syntax checks.
-- [ ] Run WordPress Coding Standards checks when tooling is available.
-- [ ] Verify no PHP warnings, notices, or deprecated messages.
+- [ ] Run WordPress Coding Standards when tooling is available.
+
+Acceptance criteria:
+
+- No PHP warnings, notices, or deprecated messages.
+- Security and performance reviews are complete.
 
 ## Milestone 16: Packaging And Release Readiness
 
+Status: Not started
+
+Goal: Prepare a production-ready plugin ZIP.
+
+Tasks:
+
 - [ ] Confirm installable ZIP structure.
-- [ ] Exclude development-only files from release package if needed.
-- [ ] Confirm plugin uninstall behavior is clean and documented.
-- [ ] Confirm README accurately reflects implemented features.
-- [ ] Update changelog for the completed release.
-- [ ] Perform final manual test on a WooCommerce store.
+- [ ] Exclude development-only files when needed.
+- [ ] Confirm uninstall behavior is documented and safe.
+- [ ] Update README and changelog.
+- [ ] Perform final WooCommerce store test.
+
+Acceptance criteria:
+
+- Plugin can be installed from WordPress admin as a ZIP package.
+- Documentation matches implemented behavior.
