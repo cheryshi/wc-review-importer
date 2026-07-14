@@ -26,6 +26,8 @@ final class Plugin
     public function init(): void
     {
         add_action('init', array($this, 'loadTextDomain'));
+
+        $this->registerServices();
     }
 
     /**
@@ -40,5 +42,54 @@ final class Plugin
             false,
             dirname(WCRI_PLUGIN_BASENAME) . '/languages'
         );
+    }
+
+    /**
+     * Registers approved plugin service groups.
+     *
+     * @return void
+     */
+    private function registerServices(): void
+    {
+        $this->registerAdminServices();
+        $this->registerAjaxServices();
+        $this->registerImportServices();
+        $this->registerSupportServices();
+    }
+
+    /**
+     * Registers admin services when their milestone is approved.
+     *
+     * @return void
+     */
+    private function registerAdminServices(): void
+    {
+    }
+
+    /**
+     * Registers AJAX services when their milestone is approved.
+     *
+     * @return void
+     */
+    private function registerAjaxServices(): void
+    {
+    }
+
+    /**
+     * Registers import services when their milestone is approved.
+     *
+     * @return void
+     */
+    private function registerImportServices(): void
+    {
+    }
+
+    /**
+     * Registers shared support services when their milestone is approved.
+     *
+     * @return void
+     */
+    private function registerSupportServices(): void
+    {
     }
 }
