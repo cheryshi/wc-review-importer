@@ -1,0 +1,89 @@
+name: Package WordPress Plugin
+
+on:
+  workflow_call:
+    inputs:
+      plugin-slug:
+        description: WordPress plugin directory name used as the ZIP root.
+        required: false
+        type: string
+        default: wc-review-importer
+      zip-name:
+        description: Production ZIP file name.
+        required: false
+        type: string
+        default: wc-review-importer.zip
+      artifact-name:
+        description: GitHub Actions artifact name for the generated ZIP.
+        required: false
+        type: string
+        default: wc-review-importer
+      retention-days:
+        description: Number of days to retain the uploaded package artifact.
+        required: false
+        type: number
+        default: 14
+    outputs:
+      zip-name:
+        description: Generated ZIP file name.
+        value: ${{ jobs.package.outputs.zip-name }}
+      artifact-name:
+        description: Uploaded artifact name.
+        value: ${{ jobs.package.outputs.artifact-name }}
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: Build production package
+    runs-on: ubuntu-latest
+    outputs:
+      zip-name: ${{ inputs.zip-name }}
+      artifact-name: ${{ inputs.artifact-name }}
+
+    steps:
+      # Check out the exact commit or tag from the caller workflow.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Prepare a clean package directory with the plugin slug as the WordPress plugin folder root.
+      - name: Prepare package directory
+        run: |
+          set -euo pipefail
+          rm -rf build "${{ inputs.zip-name }}"
+          mkdir -p "build/${{ inputs.plugin-slug }}"
+          rsync -a ./ "build/${{ inputs.plugin-slug }}/"
+
+      # Remove development-only files so the ZIP contains only installable runtime plugin assets.
+      - name: Remove development files
+        working-directory: build/${{ inputs.plugin-slug }}
+        run: |
+          set -euo pipefail
+
+          rm -rf .github
+          rm -rf docs
+          rm -rf tests
+          rm -rf .git
+          rm -f .gitignore
+          rm -f phpunit.xml phpunit.xml.dist phpcs.xml phpcs.xml.dist
+          rm -f composer.json composer.lock
+          rm -rf node_modules
+          rm -rf vendor/bin
+          rm -f README.md
+
+      # Create the installable WordPress plugin ZIP file from the cleaned package directory.
+      - name: Create plugin ZIP
+        working-directory: build
+        run: |
+          set -euo pipefail
+          zip -r "../${{ inputs.zip-name }}" "${{ inputs.plugin-slug }}"
+
+      # Upload the generated ZIP for build downloads and for release workflows to consume.
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: ${{ inputs.zip-name }}
+          if-no-files-found: error
+          retention-days: ${{ inputs.retention-days }}

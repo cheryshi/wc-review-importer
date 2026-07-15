@@ -9,53 +9,35 @@ permissions:
   contents: write
 
 jobs:
+  # Build the same production ZIP used by the main-branch build pipeline.
+  package:
+    name: Build production ZIP
+    uses: ./.github/workflows/package.yml
+    with:
+      plugin-slug: wc-review-importer
+      zip-name: wc-review-importer.zip
+      artifact-name: wc-review-importer
+      retention-days: 30
+
   release:
-    name: Build and publish GitHub Release
+    name: Publish GitHub Release
     runs-on: ubuntu-latest
+    needs: package
 
     steps:
-      # Check out the tagged repository state so the release package matches the pushed tag.
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # Store the tag name once so package and release steps can reuse a consistent value.
+      # Store the tag name once so release metadata stays consistent.
       - name: Read release tag
         id: release_tag
         run: |
           set -euo pipefail
           echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
 
-      # Create a clean production package directory with the WordPress plugin folder as the ZIP root.
-      - name: Prepare package directory
-        run: |
-          set -euo pipefail
-          rm -rf build wc-review-importer.zip
-          mkdir -p build/wc-review-importer
-          rsync -a ./ build/wc-review-importer/
-
-      # Remove repository and development-only files while preserving runtime plugin files.
-      - name: Remove development files
-        run: |
-          set -euo pipefail
-          cd build/wc-review-importer
-
-          rm -rf .github
-          rm -rf docs
-          rm -rf tests
-          rm -rf .git
-          rm -f .gitignore
-          rm -f phpunit.xml phpunit.xml.dist phpcs.xml phpcs.xml.dist
-          rm -f composer.json composer.lock
-          rm -rf node_modules
-          rm -rf vendor/bin
-          rm -f README.md
-
-      # Build the installable WordPress plugin ZIP that will be attached to the GitHub Release.
-      - name: Create plugin ZIP
-        run: |
-          set -euo pipefail
-          cd build
-          zip -r ../wc-review-importer.zip wc-review-importer
+      # Download the ZIP built by the reusable packaging workflow.
+      - name: Download plugin package
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.package.outputs.artifact-name }}
+          path: dist
 
       # Create a GitHub Release for the pushed tag and attach the production plugin ZIP.
       - name: Create GitHub Release
@@ -63,5 +45,5 @@ jobs:
         with:
           tag_name: ${{ steps.release_tag.outputs.tag }}
           name: WooCommerce Review Importer ${{ steps.release_tag.outputs.tag }}
-          files: wc-review-importer.zip
+          files: dist/${{ needs.package.outputs.zip-name }}
           fail_on_unmatched_files: true
