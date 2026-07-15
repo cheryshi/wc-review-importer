@@ -66,6 +66,8 @@ jobs:
           rm -rf tests
           rm -rf .git
           rm -f .gitignore
+          rm -f .gitkeep
+          find . -name .gitkeep -type f -delete
           rm -f phpunit.xml phpunit.xml.dist phpcs.xml phpcs.xml.dist
           rm -f composer.json composer.lock
           rm -rf node_modules
@@ -78,6 +80,19 @@ jobs:
         run: |
           set -euo pipefail
           zip -r "../${{ inputs.zip-name }}" "${{ inputs.plugin-slug }}"
+
+      # Fail fast if a development-only path leaks into the production package.
+      - name: Verify ZIP contents
+        run: |
+          set -euo pipefail
+          unzip -l "${{ inputs.zip-name }}" > zip-contents.txt
+
+          forbidden='(^|/)(\.github|docs|tests|\.git|node_modules)(/|$)|(^|/)(README\.md|\.gitignore|\.gitkeep|composer\.json|composer\.lock|phpunit\.xml(\.dist)?|phpcs\.xml(\.dist)?)$|(^|/)vendor/bin(/|$)'
+
+          if grep -E "$forbidden" zip-contents.txt; then
+            echo "Production ZIP contains development-only files." >&2
+            exit 1
+          fi
 
       # Upload the generated ZIP for build downloads and for release workflows to consume.
       - name: Upload package artifact

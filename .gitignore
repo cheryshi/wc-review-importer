@@ -1,0 +1,19 @@
+# Local and CI build output.
+/build/
+/dist/
+/wc-review-importer.zip
+/*.zip
+
+# Dependency and tooling output.
+/node_modules/
+/vendor/bin/
+
+# Operating system and editor noise.
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs and temporary files.
+*.log
+*.tmp
